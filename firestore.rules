@@ -1,0 +1,59 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function ownsProfile(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function validPhone(value) {
+      return value is string && value.matches('^[+][1-9][0-9]{7,14}$');
+    }
+
+    function validProfile(data) {
+      return data.keys().hasAll([
+          'name', 'email', 'phone', 'role', 'whatsappNumber',
+          'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'name', 'email', 'phone', 'role', 'whatsappNumber',
+          'createdAt', 'updatedAt'
+        ])
+        && data.name is string
+        && data.name.size() >= 2 && data.name.size() <= 80
+        && data.email is string
+        && data.email.size() > 0 && data.email.size() <= 254
+        && validPhone(data.phone)
+        && data.role in ['client', 'seller']
+        && data.whatsappNumber is string
+        && ((data.role == 'client' && data.whatsappNumber == '')
+          || (data.role == 'seller' && validPhone(data.whatsappNumber)))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    match /users/{uid} {
+      allow get: if ownsProfile(uid);
+      allow list: if false;
+
+      allow create: if ownsProfile(uid)
+        && validProfile(request.resource.data)
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+
+      // Rôle, email et date de création ne sont pas modifiables ici.
+      allow update: if ownsProfile(uid)
+        && validProfile(request.resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['name', 'phone', 'whatsappNumber', 'updatedAt'])
+        && request.resource.data.updatedAt == request.time;
+
+      allow delete: if false;
+    }
+
+    // Les accès produits/commandes seront ajoutés avec ces modules.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
