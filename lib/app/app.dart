@@ -15,10 +15,12 @@ class ExamShopApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => AuthController(AuthRepository(
-        auth: FirebaseAuth.instance,
-        firestore: FirebaseFirestore.instance,
-      )),
+      create: (_) => AuthController(
+        AuthRepository(
+          auth: FirebaseAuth.instance,
+          firestore: FirebaseFirestore.instance,
+        ),
+      ),
       child: MaterialApp(
         title: 'Vendora',
         debugShowCheckedModeBanner: false,

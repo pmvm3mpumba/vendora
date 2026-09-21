@@ -22,7 +22,8 @@ class AuthController extends ChangeNotifier {
 
   final AuthRepository _repository;
   late final StreamSubscription<User?> _authSubscription;
-  StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _profileSubscription;
+  StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>?
+  _profileSubscription;
   AppUser? _profile;
   bool _ready = false;
   bool _busy = false;
@@ -58,29 +59,34 @@ class AuthController extends ChangeNotifier {
       return;
     }
 
-    _profileSubscription = _repository.watchProfile(user.uid).listen(
-      (snapshot) {
-        if (_disposed || generation != _generation) return;
-        try {
-          final data = snapshot.data();
-          _profile = data == null ? null : AppUser.fromMap(snapshot.id, data);
-          _sessionError = null;
-        } catch (_) {
-          _profile = null;
-          _sessionError = 'Le profil enregistré a un format invalide. '
-              'Vérifie le document utilisateur dans Firestore.';
-        }
-        _ready = true;
-        _emit();
-      },
-      onError: (Object error) {
-        if (_disposed || generation != _generation) return;
-        _profile = null;
-        _sessionError = firebaseErrorMessage(error);
-        _ready = true;
-        _emit();
-      },
-    );
+    _profileSubscription = _repository
+        .watchProfile(user.uid)
+        .listen(
+          (snapshot) {
+            if (_disposed || generation != _generation) return;
+            try {
+              final data = snapshot.data();
+              _profile = data == null
+                  ? null
+                  : AppUser.fromMap(snapshot.id, data);
+              _sessionError = null;
+            } catch (_) {
+              _profile = null;
+              _sessionError =
+                  'Le profil enregistré a un format invalide. '
+                  'Vérifie le document utilisateur dans Firestore.';
+            }
+            _ready = true;
+            _emit();
+          },
+          onError: (Object error) {
+            if (_disposed || generation != _generation) return;
+            _profile = null;
+            _sessionError = firebaseErrorMessage(error);
+            _ready = true;
+            _emit();
+          },
+        );
   }
 
   void clearOperationError() {
@@ -117,10 +123,16 @@ class AuthController extends ChangeNotifier {
     required UserRole role,
     required String whatsappNumber,
   }) {
-    return _perform(() => _repository.register(
-      email: email, password: password, name: name, phone: phone,
-      role: role, whatsappNumber: whatsappNumber,
-    ));
+    return _perform(
+      () => _repository.register(
+        email: email,
+        password: password,
+        name: name,
+        phone: phone,
+        role: role,
+        whatsappNumber: whatsappNumber,
+      ),
+    );
   }
 
   Future<bool> completeProfile({
@@ -129,9 +141,14 @@ class AuthController extends ChangeNotifier {
     required UserRole role,
     required String whatsappNumber,
   }) {
-    return _perform(() => _repository.completeProfile(
-      name: name, phone: phone, role: role, whatsappNumber: whatsappNumber,
-    ));
+    return _perform(
+      () => _repository.completeProfile(
+        name: name,
+        phone: phone,
+        role: role,
+        whatsappNumber: whatsappNumber,
+      ),
+    );
   }
 
   Future<bool> signOut() => _perform(_repository.signOut);

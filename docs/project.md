@@ -10,13 +10,6 @@ firebase projects:list
 
 -------------------------------------------------------------------------
 
------------------------------------------------------
+Je m'attendais avoir les categorie mais je ne vois rien
 
-Tous les testes se sont tres bien passe, la il s agot des screen shoot, a mais nous allons mettre toutes les fonctionnalites indique par le prof, celle necessaire et cell facultive pour amelioration(Comme le wishlist,...)
-
--------------------------------------------------------
-
-Les disign ne sont pas bonne, alors amelioaont la bien, uniformisons les couleurs, 
-
-Pour les partie stats, les graphite, circulaire, ... seron important, a vous alors le boulot
-
+N'y a t-i pas moyen de visualiser meme les donne par defaut,comme le maquette que vous m'avez faits???

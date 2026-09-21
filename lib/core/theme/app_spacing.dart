@@ -5,8 +5,10 @@ abstract final class AppSpacing {
   static const lg = 16.0;
   static const xl = 24.0;
   static const xxl = 32.0;
-
-  static const cardRadius = 12.0;
-  static const controlRadius = 10.0;
+  static const cardRadius = 16.0;
+  static const controlRadius = 12.0;
+  static const heroRadius = 20.0;
   static const minTouchTarget = 48.0;
+  static const formMaxWidth = 480.0;
+  static const pageMaxWidth = 680.0;
 }

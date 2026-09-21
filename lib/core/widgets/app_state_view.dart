@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 
-/// Vue réutilisable pour une liste vide, une erreur ou une information.
 class AppStateView extends StatelessWidget {
   const AppStateView({
     super.key,
@@ -11,7 +11,6 @@ class AppStateView extends StatelessWidget {
     required this.message,
     this.action,
   });
-
   final IconData icon;
   final String title;
   final String message;
@@ -25,8 +24,15 @@ class AppStateView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 40, color: theme.colorScheme.primary),
-          const SizedBox(height: AppSpacing.lg),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.secondarySoft,
+              borderRadius: BorderRadius.circular(AppSpacing.heroRadius),
+            ),
+            child: Icon(icon, size: 34, color: AppColors.secondary),
+          ),
+          const SizedBox(height: AppSpacing.xl),
           Text(
             title,
             style: theme.textTheme.titleLarge,
@@ -35,7 +41,7 @@ class AppStateView extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           Text(
             message,
-            style: theme.textTheme.bodyLarge,
+            style: theme.textTheme.bodyMedium,
             textAlign: TextAlign.center,
           ),
           if (action != null) ...[

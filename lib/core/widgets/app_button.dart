@@ -12,6 +12,7 @@ class AppButton extends StatelessWidget {
     this.isLoading = false,
     this.expand = true,
     this.variant = AppButtonVariant.primary,
+    this.icon,
   });
 
   final String label;
@@ -19,33 +20,45 @@ class AppButton extends StatelessWidget {
   final bool isLoading;
   final bool expand;
   final AppButtonVariant variant;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
-    final content = isLoading
-        ? Semantics(
-            label: 'Chargement en cours',
-            liveRegion: true,
-            child: const SizedBox(
-              width: AppSpacing.xl,
-              height: AppSpacing.xl,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-          )
-        : Text(label, textAlign: TextAlign.center);
-
-    final callback = isLoading ? null : onPressed;
-    final Widget button = switch (variant) {
+    final Widget content;
+    if (isLoading) {
+      content = Semantics(
+        liveRegion: true,
+        label: 'Opération en cours',
+        child: const SizedBox(
+          height: 22,
+          width: 22,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      );
+    } else {
+      content = Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 20),
+            const SizedBox(width: AppSpacing.sm),
+          ],
+          Flexible(child: Text(label, textAlign: TextAlign.center)),
+        ],
+      );
+    }
+    final action = isLoading ? null : onPressed;
+    final button = switch (variant) {
       AppButtonVariant.primary => FilledButton(
-        onPressed: callback,
+        onPressed: action,
         child: content,
       ),
       AppButtonVariant.secondary => OutlinedButton(
-        onPressed: callback,
+        onPressed: action,
         child: content,
       ),
     };
-
     return SizedBox(width: expand ? double.infinity : null, child: button);
   }
 }

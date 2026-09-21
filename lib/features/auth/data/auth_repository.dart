@@ -18,7 +18,10 @@ class AuthRepository {
   }
 
   Future<void> signIn(String email, String password) async {
-    await auth.signInWithEmailAndPassword(email: email.trim(), password: password);
+    await auth.signInWithEmailAndPassword(
+      email: email.trim(),
+      password: password,
+    );
   }
 
   Future<void> register({
@@ -30,12 +33,16 @@ class AuthRepository {
     required String whatsappNumber,
   }) async {
     await auth.createUserWithEmailAndPassword(
-      email: email.trim(), password: password,
+      email: email.trim(),
+      password: password,
     );
     // Auth et Firestore ne forment pas une transaction commune.
     // Si cette écriture échoue, l'écran de récupération de profil prendra le relais.
     await completeProfile(
-      name: name, phone: phone, role: role, whatsappNumber: whatsappNumber,
+      name: name,
+      phone: phone,
+      role: role,
+      whatsappNumber: whatsappNumber,
     );
   }
 
@@ -55,7 +62,8 @@ class AuthRepository {
       'phone': AuthValidators.normalizePhone(phone),
       'role': role.name,
       'whatsappNumber': role == UserRole.seller
-          ? AuthValidators.normalizePhone(whatsappNumber) : '',
+          ? AuthValidators.normalizePhone(whatsappNumber)
+          : '',
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
