@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
-import 'app_spacing.dart';
+//import 'app_spacing.dart';
 
 abstract final class AppTheme {
   static ThemeData get light {
@@ -34,13 +34,7 @@ abstract final class AppTheme {
       visualDensity: VisualDensity.standard,
       materialTapTargetSize: MaterialTapTargetSize.padded,
     );
-    final shape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(AppSpacing.controlRadius),
-    );
-    final border = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(AppSpacing.controlRadius),
-      borderSide: const BorderSide(color: AppColors.inputBorder),
-    );
+
     return base.copyWith(
       scaffoldBackgroundColor: AppColors.background,
       textTheme: base.textTheme.copyWith(
@@ -108,17 +102,22 @@ abstract final class AppTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          minimumSize: const Size(48, 52),
-          shape: shape,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          minimumSize: const Size.fromHeight(52),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          minimumSize: const Size(48, 52),
-          shape: shape,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-          side: const BorderSide(color: AppColors.primary),
+          foregroundColor: AppColors.secondary,
+          side: const BorderSide(color: AppColors.secondary, width: 1.5),
+          minimumSize: const Size.fromHeight(52),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
@@ -132,24 +131,34 @@ abstract final class AppTheme {
         fillColor: AppColors.surface,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
-          vertical: 17,
+          vertical: 16,
         ),
-        border: border,
-        enabledBorder: border,
-        focusedBorder: border.copyWith(
-          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: AppColors.inputBorder, width: 1),
         ),
-        errorBorder: border.copyWith(
-          borderSide: const BorderSide(color: AppColors.error),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: AppColors.inputBorder, width: 1),
         ),
-        focusedErrorBorder: border.copyWith(
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: AppColors.secondary, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: AppColors.error, width: 1.5),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: AppColors.error, width: 2),
         ),
-        errorMaxLines: 3,
-        hintStyle: const TextStyle(
-          color: AppColors.textSecondary,
-          fontSize: 14,
+        labelStyle: const TextStyle(color: AppColors.textSecondary),
+        floatingLabelStyle: const TextStyle(
+          color: AppColors.secondary,
+          fontWeight: FontWeight.w600,
         ),
+        hintStyle: const TextStyle(color: AppColors.textSecondary),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.surface,

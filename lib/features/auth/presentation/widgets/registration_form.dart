@@ -95,6 +95,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
 
   Widget _roleCard(UserRole role) {
     final selected = _role == role;
+
     return Semantics(
       button: true,
       selected: selected,
@@ -102,11 +103,11 @@ class _RegistrationFormState extends State<RegistrationForm> {
           ? 'Choisir le rôle client'
           : 'Choisir le rôle vendeur',
       child: Material(
-        color: selected ? AppColors.primarySoft : AppColors.surface,
+        color: selected ? AppColors.secondarySoft : AppColors.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSpacing.controlRadius),
           side: BorderSide(
-            color: selected ? AppColors.primary : AppColors.inputBorder,
+            color: selected ? AppColors.secondary : AppColors.inputBorder,
             width: selected ? 1.5 : 1,
           ),
         ),
@@ -115,33 +116,19 @@ class _RegistrationFormState extends State<RegistrationForm> {
           key: Key('role_${role.name}'),
           onTap: _busy ? null : () => setState(() => _role = role),
           child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  role == UserRole.client
-                      ? Icons.shopping_bag_outlined
-                      : Icons.storefront_outlined,
-                  color: selected ? AppColors.primary : AppColors.textSecondary,
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.lg,
+              vertical: AppSpacing.md,
+            ),
+            child: Center(
+              child: Text(
+                role == UserRole.client ? 'Je suis client' : 'Je suis vendeur',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: selected ? AppColors.secondary : AppColors.textPrimary,
+                  fontWeight: FontWeight.w600,
                 ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  role == UserRole.client
-                      ? 'Je suis client'
-                      : 'Je suis vendeur',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: selected ? AppColors.primary : AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  role == UserRole.client
-                      ? 'Acheter et découvrir'
-                      : 'Créer ma boutique',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ],
+              ),
             ),
           ),
         ),

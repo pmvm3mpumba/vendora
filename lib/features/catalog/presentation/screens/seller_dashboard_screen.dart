@@ -4,6 +4,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
 import 'seller_product_form_screen.dart';
+import 'seller_products_screen.dart';
+import 'seller_orders_screen.dart';
 
 class SellerDashboardScreen extends StatelessWidget {
   const SellerDashboardScreen({super.key});
@@ -62,14 +64,22 @@ class SellerDashboardScreen extends StatelessWidget {
               label: 'Mes produits',
               icon: Icons.inventory_2_outlined,
               variant: AppButtonVariant.secondary,
-              onPressed: () {},
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const SellerProductsScreen(),
+                ),
+              ),
             ),
             const SizedBox(height: AppSpacing.md),
             AppButton(
               label: 'Mes commandes',
               icon: Icons.receipt_long_outlined,
               variant: AppButtonVariant.secondary,
-              onPressed: () {},
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const SellerOrdersScreen(),
+                ),
+              ),
             ),
           ],
         ),

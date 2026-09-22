@@ -1,8 +1,12 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/models/app_currency.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_notice.dart';
@@ -22,9 +26,11 @@ class _SellerProductFormScreenState extends State<SellerProductFormScreen> {
   final _description = TextEditingController();
   final _price = TextEditingController();
   final _stock = TextEditingController();
-  final _imageUrl = TextEditingController();
+
   AppCurrency _currency = AppCurrency.bif;
   String _categoryId = 'electronique';
+  XFile? _selectedImage;
+  Uint8List? _selectedImageBytes;
   bool _saving = false;
   String? _error;
 
@@ -48,16 +54,39 @@ class _SellerProductFormScreenState extends State<SellerProductFormScreen> {
     _description.dispose();
     _price.dispose();
     _stock.dispose();
-    _imageUrl.dispose();
     super.dispose();
   }
 
-  String? _required(String? value, String label) =>
-      value == null || value.trim().isEmpty ? '$label est obligatoire.' : null;
+  String? _required(String? value, String label) {
+    if (value == null || value.trim().isEmpty) {
+      return '$label est obligatoire.';
+    }
+    return null;
+  }
+
+  Future<void> _pickImage() async {
+    if (_saving) return;
+    final image = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+      maxWidth: 1400,
+    );
+    if (image == null) return;
+    final bytes = await image.readAsBytes();
+    if (!mounted) return;
+    setState(() {
+      _selectedImage = image;
+      _selectedImageBytes = bytes;
+    });
+  }
 
   Future<void> _save() async {
     FocusManager.instance.primaryFocus?.unfocus();
     if (!_formKey.currentState!.validate()) return;
+    if (_selectedImage == null) {
+      setState(() => _error = 'Choisissez une image pour le produit.');
+      return;
+    }
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       setState(() => _error = 'Connectez-vous avec un compte vendeur.');
@@ -94,7 +123,8 @@ class _SellerProductFormScreenState extends State<SellerProductFormScreen> {
         'currency': _currency.code,
         'categoryId': _categoryId,
         'stock': stock,
-        'imageUrl': _imageUrl.text.trim(),
+        'imageUrl': '',
+        'localImagePath': _selectedImage!.path,
         'sellerId': user.uid,
         'sellerName':
             (data?['name'] as String?)?.trim() ?? user.email ?? 'Vendeur',
@@ -115,6 +145,69 @@ class _SellerProductFormScreenState extends State<SellerProductFormScreen> {
     }
   }
 
+  Widget _imagePickerCard(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('Image du produit', style: theme.textTheme.titleMedium),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            'Choisissez une image depuis votre appareil.',
+            style: theme.textTheme.bodySmall,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          AspectRatio(
+            aspectRatio: 1.35,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(AppSpacing.controlRadius),
+              child: _selectedImageBytes == null
+                  ? InkWell(
+                      onTap: _pickImage,
+                      child: const ColoredBox(
+                        color: AppColors.secondarySoft,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.add_photo_alternate_outlined,
+                              size: 42,
+                              color: AppColors.secondary,
+                            ),
+                            SizedBox(height: 10),
+                            Text('Ajouter une image'),
+                          ],
+                        ),
+                      ),
+                    )
+                  : Image.memory(_selectedImageBytes!, fit: BoxFit.cover),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          OutlinedButton.icon(
+            onPressed: _saving ? null : _pickImage,
+            icon: const Icon(Icons.photo_library_outlined),
+            label: Text(
+              _selectedImage == null ? 'Choisir une image' : 'Changer l’image',
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            'Stockage local temporaire. Une URL publique sera ajoutée lorsque l’hébergement sera validé.',
+            style: theme.textTheme.bodySmall,
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -126,8 +219,10 @@ class _SellerProductFormScreenState extends State<SellerProductFormScreen> {
             padding: const EdgeInsets.all(AppSpacing.lg),
             children: [
               const AppNotice(
-                message: 'Les URL HTTPS sont temporaires pour le développement. Le téléversement Firebase Storage sera branché après validation de la solution d’images.',
+                message: 'L’image est conservée localement pour le moment. Elle ne sera pas encore visible sur les autres appareils.',
               ),
+              const SizedBox(height: AppSpacing.lg),
+              _imagePickerCard(context),
               const SizedBox(height: AppSpacing.lg),
               AppTextField(
                 controller: _name,
@@ -185,13 +280,6 @@ class _SellerProductFormScreenState extends State<SellerProductFormScreen> {
                     .toList(),
                 onChanged: (value) =>
                     setState(() => _categoryId = value ?? _categoryId),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              AppTextField(
-                controller: _imageUrl,
-                label: 'URL HTTPS de l’image',
-                keyboardType: TextInputType.url,
-                validator: (v) => _required(v, 'L’image'),
               ),
               if (_error != null) ...[
                 const SizedBox(height: AppSpacing.md),

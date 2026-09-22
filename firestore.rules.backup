@@ -59,11 +59,54 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
-    // Catalogue public : lecture uniquement des produits actifs.
-    // Les écritures resteront fermées jusqu'au CRUD vendeur sécurisé.
+    function isSeller() {
+      return request.auth != null
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'seller';
+    }
+
+    function validProduct(data) {
+      return data.keys().hasAll([
+          'name', 'description', 'priceMinor', 'currency', 'categoryId',
+          'stock', 'imageUrl', 'sellerId', 'sellerName',
+          'sellerWhatsappNumber', 'isActive', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'name', 'description', 'priceMinor', 'currency', 'categoryId',
+          'stock', 'imageUrl', 'sellerId', 'sellerName',
+          'sellerWhatsappNumber', 'isActive', 'createdAt', 'updatedAt'
+        ])
+        && data.name is string && data.name.size() >= 2 && data.name.size() <= 120
+        && data.description is string && data.description.size() >= 1 && data.description.size() <= 3000
+        && data.priceMinor is int && data.priceMinor > 0
+        && data.currency in ['BIF', 'USD', 'EUR']
+        && data.categoryId is string && data.categoryId.matches('^[a-zA-Z0-9_-]{1,80}$')
+        && data.stock is int && data.stock >= 0 && data.stock <= 1000000
+        && data.imageUrl is string && data.imageUrl.matches('^https://[^ ]+$')
+        && data.sellerId is string && data.sellerId == request.auth.uid
+        && data.sellerName is string && data.sellerName.size() >= 2 && data.sellerName.size() <= 80
+        && validPhone(data.sellerWhatsappNumber)
+        && data.isActive is bool
+        && data.createdAt == request.time
+        && data.updatedAt == request.time;
+    }
+
+    // Catalogue public et gestion contrôlée par le vendeur propriétaire.
     match /products/{productId} {
-      allow get, list: if resource.data.isActive == true;
-      allow create, update, delete: if false;
+      allow get, list: if resource.data.isActive == true
+        || (isSeller() && resource.data.sellerId == request.auth.uid);
+      allow create: if isSeller() && validProduct(request.resource.data);
+      allow update: if isSeller()
+        && resource.data.sellerId == request.auth.uid
+        && request.resource.data.sellerId == resource.data.sellerId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly([
+            'name', 'description', 'priceMinor', 'currency', 'categoryId',
+            'stock', 'imageUrl', 'sellerName', 'sellerWhatsappNumber',
+            'isActive', 'updatedAt'
+          ])
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if isSeller() && resource.data.sellerId == request.auth.uid;
     }
 
     // Les commandes restent fermées jusqu'à leur module sécurisé.

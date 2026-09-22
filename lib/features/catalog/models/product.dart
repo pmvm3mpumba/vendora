@@ -1,8 +1,6 @@
 import '../../../core/models/app_currency.dart';
 import '../../../core/utils/firestore_values.dart';
 
-/// Schéma de lecture préparé pour le prochain lot ; aucune écriture de produit
-/// n'est autorisée par le présent lot. Le choix de l'hébergeur d'images reste ouvert.
 class Product {
   const Product({
     required this.id,
@@ -17,6 +15,7 @@ class Product {
     required this.sellerName,
     required this.sellerWhatsappNumber,
     required this.isActive,
+    this.localImagePath,
     this.imagePath,
     this.createdAt,
     this.updatedAt,
@@ -30,6 +29,7 @@ class Product {
   final String categoryId;
   final int stock;
   final String imageUrl;
+  final String? localImagePath;
   final String? imagePath;
   final String sellerId;
   final String sellerName;
@@ -39,20 +39,31 @@ class Product {
   final DateTime? updatedAt;
 
   bool get isInStock => isActive && stock > 0;
-  // Exclusivement pour l'affichage : les calculs monétaires utiliseront les entiers.
   double get priceForDisplay => priceMinor / currency.minorUnitFactor;
 
   factory Product.fromMap(String id, Map<String, dynamic> data) {
     if (id.trim().isEmpty) {
       throw const FormatException('Identifiant de produit manquant.');
     }
-    final imageUrl = FirestoreValues.text(data, 'imageUrl', maxLength: 4096);
+    final imageUrlValue = data['imageUrl'];
+    if (imageUrlValue is! String) {
+      throw const FormatException('Champ imageUrl invalide.');
+    }
+    final imageUrl = imageUrlValue.trim();
+    final localImageValue = data['localImagePath'];
+    final localImagePath =
+        localImageValue is String && localImageValue.trim().isNotEmpty
+        ? localImageValue.trim()
+        : null;
     final uri = Uri.tryParse(imageUrl);
-    if (uri == null ||
-        uri.scheme != 'https' ||
-        uri.host.isEmpty ||
-        uri.userInfo.isNotEmpty) {
-      throw const FormatException('Une URL d’image HTTPS est nécessaire.');
+    final validRemoteUrl =
+        imageUrl.isNotEmpty &&
+        uri != null &&
+        uri.scheme == 'https' &&
+        uri.host.isNotEmpty &&
+        uri.userInfo.isEmpty;
+    if (!validRemoteUrl && localImagePath == null) {
+      throw const FormatException('Une image HTTPS ou locale est nécessaire.');
     }
     final imagePath = data['imagePath'];
     if (imagePath != null &&
@@ -94,6 +105,7 @@ class Product {
       categoryId: categoryId,
       stock: FirestoreValues.integer(data, 'stock'),
       imageUrl: imageUrl,
+      localImagePath: localImagePath,
       imagePath: imagePath as String?,
       sellerId: FirestoreValues.text(data, 'sellerId', maxLength: 128),
       sellerName: FirestoreValues.text(

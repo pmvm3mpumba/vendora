@@ -1,0 +1,9 @@
+Dans ~/develop/vendora/pubspec.yaml, sous dependencies: ajoute exactement :
+
+  image_picker: ^1.1.2
+
+Ne remplace pas tout le pubspec.yaml : conserve les dépendances Firebase, provider et autres déjà présentes. Lance ensuite :
+
+flutter pub get
+
+Flutter régénère automatiquement pubspec.lock. Ne modifie pas pubspec.lock à la main.
