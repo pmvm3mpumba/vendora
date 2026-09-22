@@ -11,6 +11,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_notice.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../data/local_image_storage.dart';
 
 class SellerProductFormScreen extends StatefulWidget {
   const SellerProductFormScreen({super.key});
@@ -116,6 +117,7 @@ class _SellerProductFormScreenState extends State<SellerProductFormScreen> {
         throw const FormatException('Stock invalide.');
       }
       final priceMinor = (priceValue * _currency.minorUnitFactor).round();
+      final storedImage = await LocalImageStorage.save(_selectedImage!);
       await FirebaseFirestore.instance.collection('products').add({
         'name': _name.text.trim(),
         'description': _description.text.trim(),
@@ -124,7 +126,7 @@ class _SellerProductFormScreenState extends State<SellerProductFormScreen> {
         'categoryId': _categoryId,
         'stock': stock,
         'imageUrl': '',
-        'localImagePath': _selectedImage!.path,
+        'localImagePath': storedImage.path,
         'sellerId': user.uid,
         'sellerName':
             (data?['name'] as String?)?.trim() ?? user.email ?? 'Vendeur',

@@ -67,12 +67,12 @@ service cloud.firestore {
     function validProduct(data) {
       return data.keys().hasAll([
           'name', 'description', 'priceMinor', 'currency', 'categoryId',
-          'stock', 'imageUrl', 'sellerId', 'sellerName',
+          'stock', 'imageUrl', 'localImagePath', 'sellerId', 'sellerName',
           'sellerWhatsappNumber', 'isActive', 'createdAt', 'updatedAt'
         ])
         && data.keys().hasOnly([
           'name', 'description', 'priceMinor', 'currency', 'categoryId',
-          'stock', 'imageUrl', 'sellerId', 'sellerName',
+          'stock', 'imageUrl', 'localImagePath', 'sellerId', 'sellerName',
           'sellerWhatsappNumber', 'isActive', 'createdAt', 'updatedAt'
         ])
         && data.name is string && data.name.size() >= 2 && data.name.size() <= 120
@@ -81,7 +81,10 @@ service cloud.firestore {
         && data.currency in ['BIF', 'USD', 'EUR']
         && data.categoryId is string && data.categoryId.matches('^[a-zA-Z0-9_-]{1,80}$')
         && data.stock is int && data.stock >= 0 && data.stock <= 1000000
-        && data.imageUrl is string && data.imageUrl.matches('^https://[^ ]+$')
+        && data.imageUrl is string
+        && (data.imageUrl == '' || data.imageUrl.matches('^https://[^ ]+$'))
+        && data.localImagePath is string
+        && data.localImagePath.size() <= 2048
         && data.sellerId is string && data.sellerId == request.auth.uid
         && data.sellerName is string && data.sellerName.size() >= 2 && data.sellerName.size() <= 80
         && validPhone(data.sellerWhatsappNumber)
@@ -102,7 +105,7 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys()
           .hasOnly([
             'name', 'description', 'priceMinor', 'currency', 'categoryId',
-            'stock', 'imageUrl', 'sellerName', 'sellerWhatsappNumber',
+            'stock', 'imageUrl', 'localImagePath', 'sellerName', 'sellerWhatsappNumber',
             'isActive', 'updatedAt'
           ])
         && request.resource.data.updatedAt == request.time;

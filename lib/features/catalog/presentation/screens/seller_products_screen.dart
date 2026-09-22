@@ -7,6 +7,7 @@ import '../../data/product_repository.dart';
 import '../../models/product.dart';
 import '../widgets/product_card.dart';
 import 'seller_product_form_screen.dart';
+import 'seller_product_edit_screen.dart';
 
 class SellerProductsScreen extends StatelessWidget {
   const SellerProductsScreen({super.key});
@@ -80,6 +81,10 @@ class SellerProductsScreen extends StatelessWidget {
                         onSelected: (action) =>
                             _changeProduct(context, product, action),
                         itemBuilder: (_) => [
+                          const PopupMenuItem(
+                            value: 'edit',
+                            child: Text('Modifier'),
+                          ),
                           PopupMenuItem(
                             value: 'toggle',
                             child: Text(
@@ -108,6 +113,14 @@ class SellerProductsScreen extends StatelessWidget {
     Product product,
     String action,
   ) async {
+    if (action == 'edit') {
+      await Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => SellerProductEditScreen(product: product),
+        ),
+      );
+      return;
+    }
     final ref = FirebaseFirestore.instance
         .collection('products')
         .doc(product.id);

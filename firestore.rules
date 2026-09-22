@@ -82,7 +82,9 @@ service cloud.firestore {
         && data.categoryId is string && data.categoryId.matches('^[a-zA-Z0-9_-]{1,80}$')
         && data.stock is int && data.stock >= 0 && data.stock <= 1000000
         && data.imageUrl is string
-        && (data.imageUrl == '' || data.imageUrl.matches('^https://[^ ]+$'))
+        && (data.imageUrl == ''
+          || data.imageUrl.matches('^https://[^ ]+$')
+          || data.imageUrl.matches('^assets/images/[a-zA-Z0-9._/-]+$'))
         && data.localImagePath is string
         && data.localImagePath.size() <= 2048
         && data.sellerId is string && data.sellerId == request.auth.uid

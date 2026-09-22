@@ -1,3 +1,6 @@
+import 'dart:typed_data';
+
+import 'package:cross_file/cross_file.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/models/app_currency.dart';
@@ -10,6 +13,48 @@ class ProductCard extends StatelessWidget {
 
   final Product product;
   final VoidCallback onTap;
+
+  Widget _fallback() => const ColoredBox(
+    color: AppColors.secondarySoft,
+    child: Icon(
+      Icons.image_not_supported_outlined,
+      color: AppColors.secondary,
+      size: 42,
+    ),
+  );
+
+  Widget _image() {
+    if (product.localImagePath != null) {
+      return FutureBuilder<Uint8List>(
+        future: XFile(product.localImagePath!).readAsBytes(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return Image.memory(snapshot.data!, fit: BoxFit.cover);
+          }
+          if (snapshot.hasError) return _fallback();
+          return const Center(child: CircularProgressIndicator());
+        },
+      );
+    }
+    if (product.imageUrl.startsWith('assets/')) {
+      return Image.asset(
+        product.imageUrl,
+        fit: BoxFit.cover,
+        errorBuilder: (_, _, _) => _fallback(),
+      );
+    }
+    if (product.imageUrl.startsWith('https://')) {
+      return Image.network(
+        product.imageUrl,
+        fit: BoxFit.cover,
+        errorBuilder: (_, _, _) => _fallback(),
+        loadingBuilder: (context, child, progress) => progress == null
+            ? child
+            : const Center(child: CircularProgressIndicator()),
+      );
+    }
+    return _fallback();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,24 +71,7 @@ class ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            AspectRatio(
-              aspectRatio: 1.15,
-              child: Image.network(
-                product.imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => const ColoredBox(
-                  color: AppColors.secondarySoft,
-                  child: Icon(
-                    Icons.image_not_supported_outlined,
-                    color: AppColors.secondary,
-                    size: 42,
-                  ),
-                ),
-                loadingBuilder: (context, child, progress) => progress == null
-                    ? child
-                    : const Center(child: CircularProgressIndicator()),
-              ),
-            ),
+            AspectRatio(aspectRatio: 1.15, child: _image()),
             Padding(
               padding: const EdgeInsets.all(AppSpacing.md),
               child: Column(

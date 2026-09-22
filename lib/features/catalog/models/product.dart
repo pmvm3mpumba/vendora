@@ -62,7 +62,9 @@ class Product {
         uri.scheme == 'https' &&
         uri.host.isNotEmpty &&
         uri.userInfo.isEmpty;
-    if (!validRemoteUrl && localImagePath == null) {
+    final validAssetPath = RegExp(r'^assets/images/[a-zA-Z0-9._/-]+$')
+        .hasMatch(imageUrl);
+    if (!validRemoteUrl && !validAssetPath && localImagePath == null) {
       throw const FormatException('Une image HTTPS ou locale est nécessaire.');
     }
     final imagePath = data['imagePath'];
