@@ -1,21 +1,25 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/widgets/app_state_view.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_state_view.dart';
 import '../../../catalog/presentation/screens/categories_screen.dart';
 import '../../../catalog/presentation/screens/products_screen.dart';
 import '../../../catalog/presentation/screens/seller_dashboard_screen.dart';
+import '../../../catalog/presentation/widgets/home_catalogue_preview.dart';
 
-/// Pas de produits/ventes fictifs : le catalogue réel arrive au lot suivant.
 class WelcomeContent extends StatelessWidget {
   const WelcomeContent({super.key, this.seller = false});
+
   final bool seller;
 
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
+    final remoteCatalogue = !seller && Firebase.apps.isNotEmpty;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -62,15 +66,40 @@ class WelcomeContent extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.xl),
-        AppButton(
-          label: 'Voir les catégories',
-          icon: Icons.grid_view_rounded,
-          onPressed: () => Navigator.of(context).push(
-            MaterialPageRoute<void>(builder: (_) => const CategoriesScreen()),
+
+        if (remoteCatalogue)
+          const HomeCataloguePreview()
+        else if (!seller) ...[
+          AppButton(
+            label: 'Voir les catégories',
+            icon: Icons.grid_view_rounded,
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const CategoriesScreen()),
+            ),
           ),
-        ),
-        if (seller) ...[
           const SizedBox(height: AppSpacing.md),
+          AppButton(
+            label: 'Voir le catalogue',
+            icon: Icons.storefront_outlined,
+            variant: AppButtonVariant.secondary,
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const ProductsScreen()),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              border: Border.all(color: AppColors.border),
+              borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+            ),
+            child: const AppStateView(
+              icon: Icons.storefront_outlined,
+              title: 'Le catalogue se prépare',
+              message: 'Les catégories et produits Firestore apparaîtront ici lorsque Firebase sera initialisé.',
+            ),
+          ),
+        ] else ...[
           AppButton(
             label: 'Gérer ma boutique',
             icon: Icons.storefront_outlined,
@@ -81,35 +110,16 @@ class WelcomeContent extends StatelessWidget {
               ),
             ),
           ),
+          const SizedBox(height: AppSpacing.md),
+          AppButton(
+            label: 'Voir le catalogue public',
+            icon: Icons.storefront_outlined,
+            variant: AppButtonVariant.secondary,
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const ProductsScreen()),
+            ),
+          ),
         ],
-        const SizedBox(height: AppSpacing.md),
-        AppButton(
-          label: 'Voir le catalogue',
-          icon: Icons.storefront_outlined,
-          variant: AppButtonVariant.secondary,
-          onPressed: () => Navigator.of(context).push(
-            MaterialPageRoute<void>(builder: (_) => const ProductsScreen()),
-          ),
-        ),
-        const SizedBox(height: AppSpacing.xl),
-        Container(
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            border: Border.all(color: AppColors.border),
-            borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-          ),
-          child: AppStateView(
-            icon: seller
-                ? Icons.inventory_2_outlined
-                : Icons.storefront_outlined,
-            title: seller
-                ? 'La suite : vos produits'
-                : 'Le catalogue se prépare',
-            message: seller
-                ? 'La création des produits, le stock et les commandes seront activés dans les prochains modules. Aucune statistique fictive n’est affichée.'
-                : 'Les catégories sont maintenant disponibles. Les produits seront reliés à Firestore au prochain module.',
-          ),
-        ),
       ],
     );
   }

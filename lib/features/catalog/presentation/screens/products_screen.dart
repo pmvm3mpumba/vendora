@@ -5,6 +5,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../data/product_repository.dart';
 import '../../models/product.dart';
 import '../widgets/product_card.dart';
+import 'product_details_screen.dart';
 
 class ProductsScreen extends StatefulWidget {
   const ProductsScreen({super.key, this.source});
@@ -87,8 +88,16 @@ class _ProductsScreenState extends State<ProductsScreen> {
                               mainAxisSpacing: AppSpacing.md,
                             ),
                         itemCount: products.length,
-                        itemBuilder: (_, index) =>
-                            ProductCard(product: products[index], onTap: () {}),
+                        itemBuilder: (_, index) => ProductCard(
+                          product: products[index],
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => ProductDetailsScreen(
+                                product: products[index],
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
               ),
             ],

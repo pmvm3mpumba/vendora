@@ -26,6 +26,24 @@ class ProductRepository implements ProductSource {
         });
   }
 
+  Stream<List<Product>> watchSimilar(String categoryId, String excludedId) {
+    return _firestore
+        .collection('products')
+        .where('isActive', isEqualTo: true)
+        .snapshots()
+        .map((snapshot) {
+          final products = snapshot.docs
+              .where(
+                (document) =>
+                    document.id != excludedId &&
+                    document.data()['categoryId'] == categoryId,
+              )
+              .map((document) => Product.fromMap(document.id, document.data()))
+              .toList();
+          return List<Product>.unmodifiable(products);
+        });
+  }
+
   @override
   Stream<List<Product>> watchActive() {
     return _firestore
