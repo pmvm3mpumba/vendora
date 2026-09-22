@@ -21,9 +21,8 @@ class CartController extends ChangeNotifier {
 
   String? add(Product product, {int quantity = 1}) {
     if (!product.isActive) return 'Ce produit n’est plus disponible.';
-    if (product.stock < quantity) {
+    if (product.stock < quantity)
       return 'La quantité demandée dépasse le stock.';
-    }
     final existing = itemFor(product.id);
     if (existing == null) {
       _items.add(CartItem(product: product, quantity: quantity));

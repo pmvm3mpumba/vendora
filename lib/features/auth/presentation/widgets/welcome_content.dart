@@ -10,16 +10,15 @@ import '../../../catalog/presentation/screens/products_screen.dart';
 import '../../../catalog/presentation/screens/seller_dashboard_screen.dart';
 import '../../../catalog/presentation/widgets/home_catalogue_preview.dart';
 
+/// Pas de produits/ventes fictifs : le catalogue réel arrive au lot suivant.
 class WelcomeContent extends StatelessWidget {
   const WelcomeContent({super.key, this.seller = false});
-
   final bool seller;
 
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     final remoteCatalogue = !seller && Firebase.apps.isNotEmpty;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -66,7 +65,6 @@ class WelcomeContent extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.xl),
-
         if (remoteCatalogue)
           const HomeCataloguePreview()
         else if (!seller) ...[

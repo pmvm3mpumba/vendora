@@ -156,16 +156,13 @@ class _ClientCartAction extends StatelessWidget {
 
   Future<bool> _isClient() async {
     final user = FirebaseAuth.instance.currentUser;
-
     if (user == null) {
       return false;
     }
-
     final snapshot = await FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid)
         .get();
-
     return snapshot.data()?['role'] == 'client';
   }
 
@@ -177,11 +174,9 @@ class _ClientCartAction extends StatelessWidget {
         if (snapshot.connectionState != ConnectionState.done) {
           return const SizedBox.shrink();
         }
-
         if (snapshot.data != true) {
           return const SizedBox.shrink();
         }
-
         return AppButton(
           label: product.isInStock ? 'Ajouter au panier' : 'Produit épuisé',
           icon: Icons.shopping_bag_outlined,
@@ -191,9 +186,7 @@ class _ClientCartAction extends StatelessWidget {
                     product,
                     quantity: quantity,
                   );
-
                   final message = error ?? 'Produit ajouté au panier.';
-
                   ScaffoldMessenger.of(context)
                       .showSnackBar(SnackBar(content: Text(message)));
                 }
@@ -344,18 +337,15 @@ class _SimilarProducts extends StatelessWidget {
       stream: ProductRepository(FirebaseFirestore.instance)
           .watchSimilar(product.categoryId, product.id),
       builder: (context, snapshot) {
-        if (snapshot.hasError) {
+        if (snapshot.hasError)
           return const Text('Les produits similaires sont indisponibles.');
-        }
-        if (!snapshot.hasData) {
+        if (!snapshot.hasData)
           return const SizedBox(
             height: 180,
             child: Center(child: CircularProgressIndicator()),
           );
-        }
-        if (snapshot.data!.isEmpty) {
+        if (snapshot.data!.isEmpty)
           return const Text('Aucun produit similaire pour le moment.');
-        }
         return SizedBox(
           height: 300,
           child: ListView.separated(

@@ -34,12 +34,10 @@ class HomeCataloguePreview extends StatelessWidget {
           child: StreamBuilder<List<Category>>(
             stream: CategoryRepository(firestore).watchActive(),
             builder: (context, snapshot) {
-              if (!snapshot.hasData) {
+              if (!snapshot.hasData)
                 return const Center(child: CircularProgressIndicator());
-              }
-              if (snapshot.data!.isEmpty) {
+              if (snapshot.data!.isEmpty)
                 return const Text('Aucune catégorie active.');
-              }
               return ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: snapshot.data!.length,
@@ -63,12 +61,10 @@ class HomeCataloguePreview extends StatelessWidget {
           child: StreamBuilder<List<Product>>(
             stream: ProductRepository(firestore).watchActive(),
             builder: (context, snapshot) {
-              if (!snapshot.hasData) {
+              if (!snapshot.hasData)
                 return const Center(child: CircularProgressIndicator());
-              }
-              if (snapshot.data!.isEmpty) {
+              if (snapshot.data!.isEmpty)
                 return const Text('Aucun produit disponible.');
-              }
               return ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: snapshot.data!.length,
