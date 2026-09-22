@@ -5,6 +5,8 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_state_view.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../catalog/presentation/screens/categories_screen.dart';
+import '../../../catalog/presentation/screens/products_screen.dart';
+import '../../../catalog/presentation/screens/seller_dashboard_screen.dart';
 
 /// Pas de produits/ventes fictifs : le catalogue réel arrive au lot suivant.
 class WelcomeContent extends StatelessWidget {
@@ -65,6 +67,28 @@ class WelcomeContent extends StatelessWidget {
           icon: Icons.grid_view_rounded,
           onPressed: () => Navigator.of(context).push(
             MaterialPageRoute<void>(builder: (_) => const CategoriesScreen()),
+          ),
+        ),
+        if (seller) ...[
+          const SizedBox(height: AppSpacing.md),
+          AppButton(
+            label: 'Gérer ma boutique',
+            icon: Icons.storefront_outlined,
+            variant: AppButtonVariant.secondary,
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const SellerDashboardScreen(),
+              ),
+            ),
+          ),
+        ],
+        const SizedBox(height: AppSpacing.md),
+        AppButton(
+          label: 'Voir le catalogue',
+          icon: Icons.storefront_outlined,
+          variant: AppButtonVariant.secondary,
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(builder: (_) => const ProductsScreen()),
           ),
         ),
         const SizedBox(height: AppSpacing.xl),
